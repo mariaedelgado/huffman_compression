@@ -6,4 +6,4 @@
 * \param fh_out as FILE*. Output file containing the compressed data.
 * \return int. Error code (0 if OK).
 */
-int hufmann__compress_file(FILE* fh_in, FILE* fh_out);
+int huffman__compress_file(FILE* fh_in, FILE* fh_out);

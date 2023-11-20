@@ -1,7 +1,7 @@
 #include "../include/huffman.h"
 #include "../include/symbols.h"
 
-int hufmann__compress_file(FILE* fh_in, FILE* fh_out)
+int huffman__compress_file(FILE* fh_in, FILE* fh_out)
 {
     int ret = -1;
     symbols_t symbols = { 0 };

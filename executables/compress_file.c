@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     }
 
     // Call method to compress file
-    ret = hufmann__compress_file(fh_in, fh_out);
+    ret = huffman__compress_file(fh_in, fh_out);
 
 end:
     if (fh_in)
