@@ -4,6 +4,7 @@
 typedef struct {
     char value;
     uint8_t frequency;
+    uint8_t code;
 } symbol_t;
 
 typedef struct {

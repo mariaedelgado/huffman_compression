@@ -5,9 +5,12 @@
 #include "../include/huffman.h"
 #include "../include/symbols.h"
 
+#define MAX_TREE_HT 50  // try to enhance
+
 struct node {
     char symbol;
     int frequency;
+    int code;
 
     struct node* lchild;
     struct node* rchild;
@@ -114,18 +117,68 @@ end:
     return ret;
 }
 
+static bool is_leaf(node_t* node)
+{
+    return (node->lchild == NULL && node->rchild == NULL) ? true : false;
+}
+
+static uint8_t assemble_code(int* codes, int level)
+{
+    uint8_t code = codes[0];
+
+    for (int i = 1; i <= level; i++)
+    {
+        code = code << 1;
+        code = code | codes[i];
+        // code |= (code << 1) | codes[i];
+    }
+
+    return code;
+}
+
+static int huffman__generate_code(node_t* current_node, int* codes, int level)
+{
+    int ret = -1;
+
+    if (is_leaf(current_node->lchild)) {
+        codes[level] = 0;
+        current_node->lchild->code = assemble_code(codes, level);
+        printf("Character: %c [%u]\n", current_node->lchild->symbol, current_node->lchild->code);
+    } else {
+        codes[level] = 0;
+        huffman__generate_code(current_node->lchild, codes, level + 1);
+    }
+
+    if (is_leaf(current_node->rchild)) {
+        codes[level] = 1;
+        current_node->rchild->code = assemble_code(codes, level);
+        printf("Character: %c [%u]\n", current_node->rchild->symbol, current_node->rchild->code);
+    } else {
+        codes[level] = 1;
+        huffman__generate_code(current_node->rchild, codes, level + 1);
+    }
+
+    return ret;
+}
+
 int huffman__compress_file(FILE* fh_in, FILE* fh_out)
 {
     int ret = -1;
     symbols_t symbols = { 0 };
     huffman_tree_t huffman_tree = { 0 };
+    int level = 0;
+    int codes[MAX_TREE_HT] = { 0 };
+    node_t top_node = { 0 };
 
     // First, the input file must be parsed and every character will be stored in
     // a symbol_t struct
     ret = symbols__get_from_input_file(&symbols, fh_in);
     symbols__print(&symbols);
 
-    huffman_tree__generate(&huffman_tree, &symbols);
+    ret = huffman_tree__generate(&huffman_tree, &symbols);
+
+    top_node = huffman_tree.node[huffman_tree.number_of_nodes - 1];
+    ret = huffman__generate_code(&top_node, codes, level);
 
     return ret;
 }
