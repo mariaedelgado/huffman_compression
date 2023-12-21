@@ -130,7 +130,7 @@ int symbols__get_from_input_file(symbols_t* self, FILE* fh_in)
     }
 
     ret = symbols__sort(self);
-    
+
 end:
     return ret;
 }
@@ -143,4 +143,12 @@ void symbols__print(const symbols_t* self)
     }
 
     return;
+}
+
+int symbols__destroy(symbols_t* self)
+{
+    self->number_of_symbols = 0;
+    free(self->symbol);
+
+    return 0;
 }

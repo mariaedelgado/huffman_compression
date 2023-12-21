@@ -27,3 +27,5 @@ of the character and the frequency of its appearance in the text.
 * \param self as const symbols_t*. Pointer to the symbols_t struct containing the data.
 */
 void symbols__print(const symbols_t* self);
+
+int symbols__destroy(symbols_t* self);
