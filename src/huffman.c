@@ -3,14 +3,14 @@
 #include <string.h>
 
 #include "../include/huffman.h"
+#include "../include/huffman_codes.h"
 #include "../include/symbols.h"
 
 #define MAX_TREE_HT 50  // try to enhance
 
 struct node {
-    char symbol;
+    char character;
     int frequency;
-    int code;
 
     struct node* lchild;
     struct node* rchild;
@@ -24,6 +24,11 @@ typedef struct {
     node_t* node;               // Array containing all the nodes of the tree
 
 } huffman_tree_t;
+
+static bool is_leaf(node_t* node)
+{
+    return ((!node->lchild) && (!node->rchild)) ? true : false;
+}
 
 static int huffman_tree__insert_new_intermediate_node(huffman_tree_t* self, int left_index, int right_index)
 {
@@ -70,11 +75,11 @@ static int huffman_tree__insert_new_intermediate_node(huffman_tree_t* self, int 
 
     for (int i = 0; i < self->number_of_nodes; i++)
     {
-        if ((self->node[i].lchild != NULL) && (self->node[i].rchild != NULL)) {
-            printf("[%u] Symbol: itn Frequency: %u\n", i, self->node[i].frequency);
+        if (is_leaf(&self->node[i]) == true) {
+            printf("[%u] character: %c Frequency: %u\n", i, self->node[i].character, self->node[i].frequency);
         } else {
-            printf("[%u] Symbol: %c Frequency: %u\n", i, self->node[i].symbol, self->node[i].frequency);
-        }
+            printf("[%u] character: %c%c Frequency: %u\n", i, self->node[i].lchild->character, self->node[i].rchild->character, self->node[i].frequency);
+        };
     }
     return 0;
 }
@@ -95,8 +100,10 @@ static int huffman_tree__generate(huffman_tree_t* self, const symbols_t* symbols
 
     for (int i = 0; i < self->number_of_nodes; i++)
     {
-        self->node[i].symbol = symbols->symbol[i].value;
+        self->node[i].character = symbols->symbol[i].value;
         self->node[i].frequency = symbols->symbol[i].frequency;
+        self->node[i].lchild = NULL;
+        self->node[i].rchild = NULL;
     }
 
     while (true)
@@ -117,9 +124,19 @@ end:
     return ret;
 }
 
-static bool is_leaf(node_t* node)
+static int huffman_tree__destroy(huffman_tree_t* self)
 {
-    return (node->lchild == NULL && node->rchild == NULL) ? true : false;
+    int ret = -1;
+
+    if (self == NULL)
+        goto end;
+
+    self->number_of_nodes = 0;
+    free(self->node);
+    ret = 0;
+
+end:
+    return ret;
 }
 
 static uint8_t assemble_code(int* codes, int level)
@@ -136,28 +153,51 @@ static uint8_t assemble_code(int* codes, int level)
     return code;
 }
 
-static int huffman__generate_code(node_t* current_node, int* codes, int level)
+static int huffman__generate_code(node_t* current_node, int* codes, int level, huffman_codes_t* huffman_codes)
 {
     int ret = -1;
+    int pos = 0;
 
     if (is_leaf(current_node->lchild)) {
         codes[level] = 0;
-        current_node->lchild->code = assemble_code(codes, level);
-        printf("Character: %c [%u]\n", current_node->lchild->symbol, current_node->lchild->code);
+        pos = current_node->lchild->character - 32;
+        huffman_codes->code[pos] = assemble_code(codes, level);
+        huffman_codes->n_significant_bits[pos] = level;
+        printf("Character: %c [%.*u]\n", current_node->lchild->character, level, huffman_codes->code[pos]);
     } else {
         codes[level] = 0;
-        huffman__generate_code(current_node->lchild, codes, level + 1);
+        huffman__generate_code(current_node->lchild, codes, level + 1, huffman_codes);
     }
 
     if (is_leaf(current_node->rchild)) {
         codes[level] = 1;
-        current_node->rchild->code = assemble_code(codes, level);
-        printf("Character: %c [%u]\n", current_node->rchild->symbol, current_node->rchild->code);
+        pos = current_node->rchild->character - 32;
+        huffman_codes->code[pos] = assemble_code(codes, level);
+        huffman_codes->n_significant_bits[pos] = level;
+        printf("Character: %c [%.*u]\n", current_node->rchild->character, level, huffman_codes->code[pos]);
     } else {
         codes[level] = 1;
-        huffman__generate_code(current_node->rchild, codes, level + 1);
+        huffman__generate_code(current_node->rchild, codes, level + 1, huffman_codes);
     }
 
+    return ret;
+}
+
+static int huffman_tree__generate_codes(const huffman_tree_t self, huffman_codes_t* huffman_codes)
+{
+    int ret = -1;
+    int level = 1;  // Number of significant bits on each code
+    int codes[MAX_TREE_HT] = { 0 };
+    node_t top_node = { 0 };
+
+    if (!huffman_codes)
+        goto end;
+    
+    // Generate codes that are, for the moment, stored in the tree itself (TO BE ENHANCED)
+    top_node = self.node[self.number_of_nodes - 1];
+    ret = huffman__generate_code(&top_node, codes, level, huffman_codes);
+
+end:
     return ret;
 }
 
@@ -166,9 +206,7 @@ int huffman__compress_file(FILE* fh_in, FILE* fh_out)
     int ret = -1;
     symbols_t symbols = { 0 };
     huffman_tree_t huffman_tree = { 0 };
-    int level = 0;
-    int codes[MAX_TREE_HT] = { 0 };
-    node_t top_node = { 0 };
+    huffman_codes_t huffman_codes = { 0 };
 
     // First, the input file must be parsed and every character will be stored in
     // a symbol_t struct
@@ -177,8 +215,11 @@ int huffman__compress_file(FILE* fh_in, FILE* fh_out)
 
     ret = huffman_tree__generate(&huffman_tree, &symbols);
 
-    top_node = huffman_tree.node[huffman_tree.number_of_nodes - 1];
-    ret = huffman__generate_code(&top_node, codes, level);
+    ret = huffman_tree__generate_codes(huffman_tree, &huffman_codes);
+
+    // Destroy the structs that have allocated memory
+    ret = huffman_tree__destroy(&huffman_tree);
+    ret = symbols__destroy(&symbols);
 
     return ret;
 }
