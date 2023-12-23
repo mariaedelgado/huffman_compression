@@ -43,7 +43,7 @@ int huffman_codes__encode_file(FILE* fh_in, FILE* fh_out, const huffman_codes_t*
 {
     int ret = -1;
 
-    if ((fh_in != NULL) || (fh_out != NULL))
+    if ((fh_in == NULL) || (fh_out == NULL))
         goto end;
 
     // Rewind fh_in, since it has already been read
@@ -51,23 +51,22 @@ int huffman_codes__encode_file(FILE* fh_in, FILE* fh_out, const huffman_codes_t*
 
     // Read the file character by character and print the respective Huffman code for the
     // given character in the output file.
-    // char c = ' ';
-    // int huffman_code = 0;
-    // int n_significant_bits = huffman_codes->n_significant_bits;
+    char c = ' ';
+    int pos = 0;
 
     while (true)
     {
-        // c = fgetc(fh_in);
-        // huffman_code = huffman_codes->code[(int)c];
-
-        // fprintf(fh_out, huffman_code);
+        c = fgetc(fh_in);
 
         if (feof(fh_in)) {
+            ret = 0;
             break;
         }
-    }
 
-    ret = 0;
+        // Since the character is at the same time the index in our huffman_code_t table (when substracted 32).
+        pos = (int)c - 32;
+        fprintf(fh_out, "%.*s", huffman_codes->n_significant_bits[pos], huffman_codes->code[pos]);
+    }
 
 end:
     return ret;

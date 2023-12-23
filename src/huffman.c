@@ -80,9 +80,7 @@ static int huffman_tree__insert_new_intermediate_node(huffman_tree_t* self, int 
         if (is_leaf(&self->node[i]) == true) {
             printf("[%u] character: %c Frequency: %u\n", i, self->node[i].character, self->node[i].frequency);
         } else {
-            int lchild_index = self->node[i].lchild_index;
-            int rchild_index = self->node[i].rchild_index;
-            printf("[%u] character: %c%c Frequency: %u\n", i, self->node[lchild_index].character, self->node[rchild_index].character, self->node[i].frequency);
+            printf("[%u] ITN node Frequency: %u\n", i, self->node[i].frequency);
         };
     }
     return 0;
@@ -208,6 +206,8 @@ int huffman__compress_file(FILE* fh_in, FILE* fh_out)
     ret = huffman_tree__generate(&huffman_tree, &symbols);
 
     ret = huffman_tree__generate_codes(huffman_tree, &huffman_codes);
+
+    ret = huffman_codes__encode_file(fh_in, fh_out, &huffman_codes);
 
     // Destroy the structs that have allocated memory
     ret = huffman_tree__destroy(&huffman_tree);
