@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/huffman_tree.h"
+#include "../include/huffman_io.h"
 #include "../include/huffman_codes.h"
 #include "../include/huffman.h"
 
@@ -59,16 +59,15 @@ end:
 int huffman__compress_file(FILE* fh_in, FILE* fh_out)
 {
     int ret = -1;
-    symbols_t symbols = { 0 };
+    huffman_io_t huffman_io = {.fh_in = fh_in, .fh_out = fh_out};
     huffman_tree_t huffman_tree = { 0 };
     huffman_codes_t huffman_codes = { 0 };
 
     // First, the input file must be parsed and every character will be stored in
     // a symbol_t struct
-    ret = symbols__get_from_input_file(&symbols, fh_in);
-    symbols__print(&symbols);
+    ret = huffman_io__read(&huffman_io, &huffman_tree);
 
-    ret = huffman_tree__generate(&huffman_tree, &symbols);
+    ret = huffman_tree__generate(&huffman_tree);
 
     ret = huffman_tree__generate_codes(huffman_tree, &huffman_codes);
 
@@ -76,7 +75,6 @@ int huffman__compress_file(FILE* fh_in, FILE* fh_out)
 
     // Destroy the structs that have allocated memory
     ret = huffman_tree__destroy(&huffman_tree);
-    ret = symbols__destroy(&symbols);
 
     return ret;
 }

@@ -163,7 +163,7 @@ static int huffman_tree__insert_new_intermediate_node(huffman_tree_t* self, int 
     return 0;
 }
 
-int huffman_tree__generate(huffman_tree_t* self, symbols_t* symbols)
+int huffman_tree__generate(huffman_tree_t* self)
 {
     int ret = -1;
     int left_index = 0;
@@ -172,18 +172,6 @@ int huffman_tree__generate(huffman_tree_t* self, symbols_t* symbols)
 
     if (self == NULL)
         goto end;
-    
-    // First, create leaf nodes from the input symbols
-    self->node = malloc(symbols->number_of_symbols*sizeof(node_t));
-    self->number_of_nodes = symbols->number_of_symbols;
-
-    for (int i = 0; i < self->number_of_nodes; i++)
-    {
-        self->node[i].character = symbols->symbol[i].value;
-        self->node[i].frequency = symbols->symbol[i].frequency;
-        self->node[i].lchild_index = -1;
-        self->node[i].rchild_index = -1;
-    }
 
     while (true)
     {

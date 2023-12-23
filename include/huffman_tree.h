@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "symbols.h"
-
 #define MAX_TREE_HT 50  // try to enhance
 
 typedef struct {
@@ -24,10 +22,10 @@ typedef struct {
 
 } huffman_tree_t;
 
-// int huffman_tree__store_character(huffman_tree_t* self, char character);
+int huffman_tree__store_character(huffman_tree_t* self, char character);
 
-// int huffman_tree__sort(huffman_tree_t* self);
+int huffman_tree__sort(huffman_tree_t* self);
 
-int huffman_tree__generate(huffman_tree_t* self, symbols_t* symbols);
+int huffman_tree__generate(huffman_tree_t* self);
 
 int huffman_tree__destroy(huffman_tree_t* self);
