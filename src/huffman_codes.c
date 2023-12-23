@@ -51,14 +51,14 @@ int huffman_codes__encode_file(FILE* fh_in, FILE* fh_out, const huffman_codes_t*
 
     // Read the file character by character and print the respective Huffman code for the
     // given character in the output file.
-    char c = ' ';
-    int huffman_code = 0;
+    // char c = ' ';
+    // int huffman_code = 0;
     // int n_significant_bits = huffman_codes->n_significant_bits;
 
     while (true)
     {
-        c = fgetc(fh_in);
-        huffman_code = huffman_codes->code[(int)c];
+        // c = fgetc(fh_in);
+        // huffman_code = huffman_codes->code[(int)c];
 
         // fprintf(fh_out, huffman_code);
 

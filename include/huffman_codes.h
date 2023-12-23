@@ -7,12 +7,13 @@
 // decimal index. Table of ASCII printable characters available in the source file.
 
 #define N_ASCII_PRINTABLE_CHAR  95
+#define N_MAX_SIGNIFICANT_BITS   8
 
 struct huffman_codes {
 
-    uint8_t n_significant_bits[N_ASCII_PRINTABLE_CHAR];     // Number of significant bits in the Huffman code
-    int code[N_ASCII_PRINTABLE_CHAR];                       // Array with the size of the maximum number of printable characters,
-                                                            // where we are going to store the value of their Huffman code.
+    uint8_t n_significant_bits[N_ASCII_PRINTABLE_CHAR];         // Number of significant bits in the Huffman code
+    char code[N_ASCII_PRINTABLE_CHAR][N_MAX_SIGNIFICANT_BITS];  // Array with the size of the maximum number of printable characters,
+                                                                // where we are going to store the value of their Huffman code.
 };
 
 typedef struct huffman_codes huffman_codes_t;
