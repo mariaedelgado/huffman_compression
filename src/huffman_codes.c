@@ -39,7 +39,6 @@
 //      >	     3e	  62	 	    ^	    5e	  94	 	    ~	     7e	 126
 //      ?	     3f	  63	 	    _	    5f	  95	 	    Delete	 7f	 127
 
-
 static int huffman_codes__generate_code(huffman_codes_t* self, const huffman_tree_t huffman_tree, int current_index, char* codes, int level)
 {
     int ret = -1;
@@ -88,4 +87,53 @@ int huffman_codes__generate(huffman_codes_t* self, const huffman_tree_t huffman_
 
 end:
     return ret;
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+
+static int huffman_codes__generate_code_from_header(huffman_codes_t* self, FILE* fh_in, char* codes, int level)
+{
+    int ret = 0;
+    int pos = 0;
+    char is_leaf = 0;
+    char character = 0;
+    char lcodes[MAX_TREE_HT] = { 0 };
+    char rcodes[MAX_TREE_HT] = { 0 };
+    strcpy(lcodes, codes);
+    strcpy(rcodes, codes);
+
+    if ((self == NULL) || (fh_in == NULL)) {
+        return -1;
+        goto end;
+    }
+
+    is_leaf = fgetc(fh_in);
+
+    if (is_leaf == '1') {
+        character = fgetc(fh_in);
+        pos = character - 32;
+        self->n_significant_bits[pos] = level;
+        strcpy(self->code[pos], codes);
+        printf("Character: %c [%.*s]\n", character, level, self->code[pos]);
+    
+    } else if (is_leaf == '0') {
+        // Right side
+        rcodes[level - 1] = '0';
+        ret = huffman_codes__generate_code_from_header(self, fh_in, rcodes, level + 1);
+
+        // Left side
+        lcodes[level - 1] = '1';
+        ret = huffman_codes__generate_code_from_header(self, fh_in, lcodes, level + 1);
+    }
+
+end:
+    return ret;
+}
+
+int huffman_codes__generate_from_header(huffman_codes_t* self, FILE* fh_in)
+{
+    int level = 1;  // Number of significant bits on each code
+    char codes[MAX_TREE_HT] = { 0 };
+
+    return huffman_codes__generate_code_from_header(self, fh_in, codes, level);
 }

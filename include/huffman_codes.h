@@ -26,3 +26,6 @@ typedef struct huffman_codes huffman_codes_t;
  * \return int. Error code (0 if OK).
 */
 int huffman_codes__generate(huffman_codes_t* self, const huffman_tree_t huffman_tree);
+
+
+int huffman_codes__generate_from_header(huffman_codes_t* self, FILE* fh_in);
