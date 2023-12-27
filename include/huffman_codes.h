@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "../include/huffman_tree.h"
+
 // We are going to use the ASCII table to quickly access the Huffman codes of the characters. This is, we are going
 // to create an array of 127 - 32 = 95 to represent each of the possible characters and access the table by their
 // decimal index. Table of ASCII printable characters available in the source file.
@@ -18,4 +20,9 @@ struct huffman_codes {
 
 typedef struct huffman_codes huffman_codes_t;
 
-int huffman_codes__encode_file(FILE* fh_in, FILE* fh_out, const huffman_codes_t* codes);
+/** \brief Generate Huffman codes table from the tree of this Huffman process.
+ * \param self as huffman_codes_t*. Pointer to the huffman_codes_t* table to be filled.
+ * \param huffman_tree as const huffman_tree_t. Huffman Tree of the process.
+ * \return int. Error code (0 if OK).
+*/
+int huffman_codes__generate(huffman_codes_t* self, const huffman_tree_t huffman_tree);

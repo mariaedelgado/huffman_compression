@@ -39,34 +39,52 @@
 //      >	     3e	  62	 	    ^	    5e	  94	 	    ~	     7e	 126
 //      ?	     3f	  63	 	    _	    5f	  95	 	    Delete	 7f	 127
 
-int huffman_codes__encode_file(FILE* fh_in, FILE* fh_out, const huffman_codes_t* huffman_codes)
+
+static int huffman_codes__generate_code(huffman_codes_t* self, const huffman_tree_t huffman_tree, int current_index, char* codes, int level)
 {
     int ret = -1;
-
-    if ((fh_in == NULL) || (fh_out == NULL))
-        goto end;
-
-    // Rewind fh_in, since it has already been read
-    rewind(fh_in);
-
-    // Read the file character by character and print the respective Huffman code for the
-    // given character in the output file.
-    char c = ' ';
     int pos = 0;
 
-    while (true)
-    {
-        c = fgetc(fh_in);
+    const node_t* current_node = &huffman_tree.node[current_index];
+    const node_t* lchild_node = &huffman_tree.node[current_node->lchild_index];
+    const node_t* rchild_node = &huffman_tree.node[current_node->rchild_index];
 
-        if (feof(fh_in)) {
-            ret = 0;
-            break;
-        }
-
-        // Since the character is at the same time the index in our huffman_code_t table (when substracted 32).
-        pos = (int)c - 32;
-        fprintf(fh_out, "%.*s", huffman_codes->n_significant_bits[pos], huffman_codes->code[pos]);
+    if (is_leaf(lchild_node)) {
+        codes[level - 1] = '0';
+        pos = lchild_node->character - 32;
+        self->n_significant_bits[pos] = level;
+        strcpy(self->code[pos], codes);
+        printf("Character: %c [%.*s]\n", lchild_node->character, level, self->code[pos]);
+    } else {
+        codes[level - 1] = '0';
+        huffman_codes__generate_code(self, huffman_tree, current_node->lchild_index, codes, level + 1);
     }
+
+    if (is_leaf(rchild_node)) {
+        codes[level - 1] = '1';
+        pos = rchild_node->character - 32;
+        self->n_significant_bits[pos] = level;
+        strcpy(self->code[pos], codes);
+        printf("Character: %c [%.*s]\n", rchild_node->character, level, self->code[pos]);
+    } else {
+        codes[level - 1] = '1';
+        huffman_codes__generate_code(self, huffman_tree, current_node->rchild_index, codes, level + 1);
+    }
+
+    return ret;
+}
+
+int huffman_codes__generate(huffman_codes_t* self, const huffman_tree_t huffman_tree)
+{
+    int ret = -1;
+    int level = 1;  // Number of significant bits on each code
+    char codes[MAX_TREE_HT] = { 0 };
+
+    if (self == NULL)
+        goto end;
+    
+    // Generate codes that are, for the moment, stored in the tree itself (TO BE ENHANCED)
+    ret = huffman_codes__generate_code(self, huffman_tree, huffman_tree.number_of_nodes - 1, codes, level);
 
 end:
     return ret;
