@@ -83,7 +83,6 @@ int main(int argc, char *argv[])
 {
     int ret = -1;
     parse_args_t parse_args = { 0 };
-    huffman_tree_t huffman_tree = { 0 };
     huffman_codes_t huffman_codes = { 0 };
     
     // Parse the input command to obtain the input file to be compressed and
@@ -92,24 +91,27 @@ int main(int argc, char *argv[])
     if (ret != 0)
         goto end;
 
-    // Create huffman_io_t instance and read input file
-    huffman_io_t* huffman_io = huffman_io__create(parse_args.input_file, parse_args.output_file, parse_args.compress);
-    ret = huffman_io__read(huffman_io, &huffman_tree);
+    huffman_io_t* huffman_io = huffman_io__create(parse_args.input_file,
+                                                  parse_args.output_file,
+                                                  parse_args.compress);
 
-    // Generate Huffman Tree
-    ret = huffman_tree__generate(&huffman_tree);
+    if (huffman_io->compress == true) {
+        huffman_tree_t huffman_tree = { 0 };
+        ret = huffman_io__read_file_to_compress(huffman_io, &huffman_tree);
+        ret = huffman_tree__generate(&huffman_tree);
+        ret = huffman_codes__generate(&huffman_codes, huffman_tree);
+        ret = huffman_io__write_compressed_file(huffman_io, &huffman_tree, &huffman_codes);
+        ret = huffman_tree__destroy(&huffman_tree);
 
-    // Generate Huffman codes
-    ret = huffman_codes__generate(&huffman_codes, huffman_tree);
-
-    // Write output
-    ret = huffman_io__write(huffman_io, &huffman_tree, &huffman_codes);
-
+    } else {
+        ret = huffman_io__read_file_to_uncompress(huffman_io, &huffman_codes);
+        ret = huffman_io__write_uncompressed_file(huffman_io, &huffman_codes);
+    }
+    
 end:
 
     if (huffman_io != NULL) {
         ret = huffman_io__destroy(huffman_io);
-        ret = huffman_tree__destroy(&huffman_tree);
     }
 
     return ret;
