@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../include/huffman.h"
+#include "../include/huffman_io.h"
 
 #define MAX_SIZE_FILENAME   256
 
@@ -77,10 +77,14 @@ end:
     return ret;
 }
 
+/* ----------------------------------------------------------------------------------- */
+
 int main(int argc, char *argv[])
 {
     int ret = -1;
     parse_args_t parse_args = { 0 };
+    huffman_tree_t huffman_tree = { 0 };
+    huffman_codes_t huffman_codes = { 0 };
     
     // Parse the input command to obtain the input file to be compressed and
     // the output file where we are going to store the compressed data.
@@ -88,29 +92,25 @@ int main(int argc, char *argv[])
     if (ret != 0)
         goto end;
 
-    // Open both input and output files
-    FILE* fh_in = fopen(parse_args.input_file, "r");
-    FILE* fh_out = fopen(parse_args.output_file, "w+");
+    // Create huffman_io_t instance and read input file
+    huffman_io_t* huffman_io = huffman_io__create(parse_args.input_file, parse_args.output_file, parse_args.compress);
+    ret = huffman_io__read(huffman_io, &huffman_tree);
 
-    if ((fh_in == NULL) || (fh_out == NULL))
-    {
-        ret = -1;
-        goto end;
-    }
+    // Generate Huffman Tree
+    ret = huffman_tree__generate(&huffman_tree);
 
-    // Call method to compress or decompress file
-    if (parse_args.compress == true) {
-        ret = huffman__compress_file(fh_in, fh_out);
-    } else {
-        // ret = huffman__decompress_file(fh_in, fh_out);
-    }
+    // Generate Huffman codes
+    ret = huffman_codes__generate(&huffman_codes, huffman_tree);
+
+    // Write output
+    ret = huffman_io__write(huffman_io, &huffman_tree, &huffman_codes);
 
 end:
-    if (fh_in)
-        fclose(fh_in);
 
-    if (fh_out)
-        fclose(fh_out);
+    if (huffman_io != NULL) {
+        ret = huffman_io__destroy(huffman_io);
+        ret = huffman_tree__destroy(&huffman_tree);
+    }
 
     return ret;
 }

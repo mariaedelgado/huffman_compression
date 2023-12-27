@@ -4,9 +4,26 @@
 #include "huffman_codes.h"
 
 typedef struct {
-    FILE* fh_in;
-    FILE* fh_out;
+      FILE* fh_in;
+      FILE* fh_out;
+      bool compress;
 } huffman_io_t;
+
+/** \brief Create huffman_io_t* instance.
+ * \param input_file as char*. Input file to be compressed/decompressed.
+ * \param output_file as char*. Output file where the decompressed/compressed data is
+ * going to be stored in.
+ * \param compress as bool. 'true' if input file is to be compressed, 'false' if
+ * input file is to be decompressed.
+ * \return huffman_io_t*.
+*/
+huffman_io_t* huffman_io__create(char* input_file, char* output_file, bool compress);
+
+/** \brief Destroy huffman_io_t* instance.
+ * \param self as huffman_io_t*. Pointer to the instance to be destroyed.
+ * \return int. Error code (0 if OK).
+*/
+int huffman_io__destroy(huffman_io_t* self);
 
 /** \brief Reads input file to be encoded and generates an initial Huffman Tree that
  * contains only the leafs (the read characters with their respective frequencies).

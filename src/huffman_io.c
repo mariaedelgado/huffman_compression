@@ -3,6 +3,38 @@
 
 #include "../include/huffman_io.h"
 
+huffman_io_t* huffman_io__create(char* input_file, char* output_file, bool compress)
+{
+    huffman_io_t* self = malloc(sizeof(huffman_io_t));
+
+    // Open both input and output files
+    self->fh_in = fopen(input_file, "r");
+    self->fh_out = fopen(output_file, "w+");
+    self->compress = compress;
+
+    if ((self->fh_in == NULL) || (self->fh_in == NULL))
+    {
+        self = NULL;
+    }
+
+    return self;
+}
+
+int huffman_io__destroy(huffman_io_t* self)
+{
+    int ret = 0;
+
+    if (self == NULL) {
+        ret = 1;
+    } else {
+        if (self->fh_in) fclose(self->fh_in);
+        if (self->fh_out) fclose(self->fh_out);
+        free(self);
+    }
+
+    return ret;
+}
+
 int huffman_io__read(huffman_io_t* self, huffman_tree_t* huffman_tree)
 {
     int ret = -1;
