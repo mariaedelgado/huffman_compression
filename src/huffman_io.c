@@ -35,7 +35,9 @@ int huffman_io__destroy(huffman_io_t* self)
     return ret;
 }
 
-int huffman_io__read(huffman_io_t* self, huffman_tree_t* huffman_tree)
+/* ----------------------------------------------------------------------------------- */
+
+int huffman_io__read_file_to_compress(huffman_io_t* self, huffman_tree_t* huffman_tree)
 {
     int ret = -1;
 
@@ -65,6 +67,11 @@ int huffman_io__read(huffman_io_t* self, huffman_tree_t* huffman_tree)
 
 end:
     return ret;
+}
+
+int huffman_io__read_file_to_uncompress(huffman_io_t* self, huffman_codes_t* huffman_codes)
+{
+    return huffman_codes__generate_from_header(huffman_codes, self->fh_in);
 }
 
 /* --------------------------------------------------------------------------------------------------- */
@@ -110,7 +117,7 @@ end:
     return ret;
 }
 
-int huffman_io__write(huffman_io_t* self, huffman_tree_t* huffman_tree, huffman_codes_t* huffman_codes)
+int huffman_io__write_compressed_file(huffman_io_t* self, huffman_tree_t* huffman_tree, huffman_codes_t* huffman_codes)
 {
     int ret = -1;
 
@@ -125,11 +132,13 @@ int huffman_io__write(huffman_io_t* self, huffman_tree_t* huffman_tree, huffman_
     rewind(self->fh_in);
 
     // Read the file character by character and print the respective Huffman code for the
-    // given character in the output file. Write a space between the encoded header and the
-    // encoded bytes so that we can distinguish between the Huffman Tree and the file itself.
+    // given character in the output file. 
     char c = ' ';
     int pos = 0;
-    fprintf(self->fh_out, " ");
+
+    // Write a space between the encoded header and the
+    // encoded bytes so that we can distinguish between the Huffman Tree and the file itself.
+    // fprintf(self->fh_out, " ");
 
     while (true)
     {
@@ -143,6 +152,46 @@ int huffman_io__write(huffman_io_t* self, huffman_tree_t* huffman_tree, huffman_
         // Since the character is at the same time the index in our huffman_code_t table (when substracted 32).
         pos = (int)c - 32;
         fprintf(self->fh_out, "%.*s", huffman_codes->n_significant_bits[pos], huffman_codes->code[pos]);
+    }
+
+end:
+    return ret;
+}
+
+int huffman_io__write_uncompressed_file(huffman_io_t* self, huffman_codes_t* huffman_codes)
+{
+    int ret = -1;
+    char code[8] = { 0 };
+    int counter = 0;
+    bool found = false;
+
+    while (true) {
+
+        code[counter] = fgetc(self->fh_in);
+
+        if (feof(self->fh_in)) {
+            ret = 0;
+            break;
+        }
+
+        // Try to map current code to an entry of the table. If not possible, continue reading
+        for (int i = 0; i < N_ASCII_PRINTABLE_CHAR; i++)
+        {
+            if (strcmp(huffman_codes->code[i], code) == 0) {
+                fprintf(self->fh_out, "%c", i + 32);
+                found = true;
+                break;
+            }
+        }
+
+        if (found == false) {
+            counter++;
+        } else {
+            found = false;
+            memset(code, NULL, counter + 1);
+            counter = 0;
+        }
+
     }
 
 end:
