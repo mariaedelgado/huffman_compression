@@ -79,11 +79,61 @@ end:
 
 /* ----------------------------------------------------------------------------------- */
 
+static int huffman__compress(huffman_io_t* huffman_io)
+{
+    int ret = -1;
+    huffman_tree_t huffman_tree = { 0 };
+    huffman_codes_t huffman_codes = { 0 };
+    
+    // Read file and store the characters (and their frequency) as leafs of the Tree
+    ret = huffman_io__read_file_to_compress(huffman_io, &huffman_tree);
+    if (ret != 0)
+        goto end;
+
+    // Generate Huffman Tree intermediate nodes
+    ret = huffman_tree__generate(&huffman_tree);
+    if (ret != 0)
+        goto end;
+    
+    // Generate the codes from the Huffman tree
+    ret = huffman_codes__generate(&huffman_codes, huffman_tree);
+    if (ret != 0)
+        goto end;
+    
+    // Re-write the file using the Huffman codes in the output file
+    ret = huffman_io__write_compressed_file(huffman_io, &huffman_tree, &huffman_codes);
+    if (ret != 0)
+        goto end;
+
+    ret = huffman_tree__destroy(&huffman_tree);
+
+end:
+    return ret;
+}
+
+static int huffman__decompress(huffman_io_t* huffman_io)
+{
+    int ret = -1;
+    huffman_codes_t huffman_codes = { 0 };
+
+    // Read file header to obtain the Huffman codes with which the file has been compressed
+    ret = huffman_io__read_file_to_uncompress(huffman_io, &huffman_codes);
+    if (ret != 0)
+        goto end;
+    
+    // Use the codes to decode the compressed file and write it into the output file
+    ret = huffman_io__write_uncompressed_file(huffman_io, &huffman_codes);
+    if (ret != 0)
+        goto end;
+
+end:
+    return ret;
+}
+
 int main(int argc, char *argv[])
 {
     int ret = -1;
     parse_args_t parse_args = { 0 };
-    huffman_codes_t huffman_codes = { 0 };
     
     // Parse the input command to obtain the input file to be compressed and
     // the output file where we are going to store the compressed data.
@@ -96,16 +146,10 @@ int main(int argc, char *argv[])
                                                   parse_args.compress);
 
     if (huffman_io->compress == true) {
-        huffman_tree_t huffman_tree = { 0 };
-        ret = huffman_io__read_file_to_compress(huffman_io, &huffman_tree);
-        ret = huffman_tree__generate(&huffman_tree);
-        ret = huffman_codes__generate(&huffman_codes, huffman_tree);
-        ret = huffman_io__write_compressed_file(huffman_io, &huffman_tree, &huffman_codes);
-        ret = huffman_tree__destroy(&huffman_tree);
+        ret = huffman__compress(huffman_io);
 
     } else {
-        ret = huffman_io__read_file_to_uncompress(huffman_io, &huffman_codes);
-        ret = huffman_io__write_uncompressed_file(huffman_io, &huffman_codes);
+        ret = huffman__decompress(huffman_io);
     }
     
 end:
