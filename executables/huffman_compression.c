@@ -130,6 +130,29 @@ end:
     return ret;
 }
 
+static void print_compression_ratio(huffman_io_t* huffman_io)
+{
+    int input_file_size = 0;
+    int output_file_size = 0;
+    float compression_ratio = 0.0;
+
+    // Compute input file size
+    rewind(huffman_io->fh_in);
+    fseek(huffman_io->fh_in, 0L, SEEK_END);
+    input_file_size = ftell(huffman_io->fh_in);
+
+    // Compute output file size
+    rewind(huffman_io->fh_out);
+    fseek(huffman_io->fh_out, 0L, SEEK_END);
+    output_file_size = ftell(huffman_io->fh_out);
+
+    // Print ratio
+    compression_ratio = (float)output_file_size/(float)input_file_size;
+    printf("Compression ratio = %d/%d = %f\n", output_file_size, input_file_size, compression_ratio);
+
+    return;
+}
+
 int main(int argc, char *argv[])
 {
     int ret = -1;
@@ -147,10 +170,12 @@ int main(int argc, char *argv[])
 
     if (huffman_io->compress == true) {
         ret = huffman__compress(huffman_io);
+        print_compression_ratio(huffman_io);
 
     } else {
         ret = huffman__decompress(huffman_io);
     }
+
     
 end:
 

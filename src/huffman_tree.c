@@ -33,7 +33,6 @@ end:
 int huffman_tree__store_character(huffman_tree_t* self, char character)
 {
     int ret = -1;
-    fprintf(stderr, "%c", character);
 
     if (self == NULL)
     {
@@ -79,11 +78,12 @@ end:
 
 int huffman_tree__sort(huffman_tree_t* self)
 {
-    int ret = -1;
+    int ret = 0;
     int min_index = 0;
 
     if (self == NULL)
     {
+        ret = -1;
         goto end;
     }
 

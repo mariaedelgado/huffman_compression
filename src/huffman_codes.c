@@ -41,12 +41,17 @@
 
 static int huffman_codes__generate_code(huffman_codes_t* self, const huffman_tree_t huffman_tree, int current_index, char* codes, int level)
 {
-    int ret = -1;
+    int ret = 0;
     int pos = 0;
 
     const node_t* current_node = &huffman_tree.node[current_index];
     const node_t* lchild_node = &huffman_tree.node[current_node->lchild_index];
     const node_t* rchild_node = &huffman_tree.node[current_node->rchild_index];
+
+    if (current_node == NULL || lchild_node == NULL || rchild_node == NULL) {
+        ret = -1;
+        goto end;
+    }
 
     if (is_leaf(lchild_node)) {
         codes[level - 1] = '0';
@@ -70,17 +75,20 @@ static int huffman_codes__generate_code(huffman_codes_t* self, const huffman_tre
         huffman_codes__generate_code(self, huffman_tree, current_node->rchild_index, codes, level + 1);
     }
 
+end:
     return ret;
 }
 
 int huffman_codes__generate(huffman_codes_t* self, const huffman_tree_t huffman_tree)
 {
-    int ret = -1;
+    int ret = 0;
     int level = 1;  // Number of significant bits on each code
     char codes[N_MAX_SIGNIFICANT_BITS] = { 0 };
 
-    if (self == NULL)
+    if (self == NULL) {
+        ret = -1;
         goto end;
+    }
     
     // Generate codes that are, for the moment, stored in the tree itself (TO BE ENHANCED)
     ret = huffman_codes__generate_code(self, huffman_tree, huffman_tree.number_of_nodes - 1, codes, level);
