@@ -48,7 +48,7 @@ int huffman_io__read_file_to_compress(huffman_io_t* self, huffman_tree_t* huffma
 
     while (true)
     {
-        char c = fgetc(self->fh_in);
+        int c = fgetc(self->fh_in);
 
         if (feof(self->fh_in))
         {
@@ -56,7 +56,7 @@ int huffman_io__read_file_to_compress(huffman_io_t* self, huffman_tree_t* huffma
             break;
         }
 
-        ret = huffman_tree__store_character(huffman_tree, c);
+        ret = huffman_tree__store_character(huffman_tree, (char)c);
         if (ret != 0)
         {
             goto end;
@@ -160,10 +160,15 @@ end:
 
 int huffman_io__write_uncompressed_file(huffman_io_t* self, huffman_codes_t* huffman_codes)
 {
-    int ret = -1;
+    int ret = 0;
     char code[8] = { 0 };
     int counter = 0;
     bool found = false;
+
+    if ((self == NULL) || (huffman_codes == NULL)) {
+        ret = -1;
+        goto end;
+    }
 
     while (true) {
 
@@ -188,7 +193,7 @@ int huffman_io__write_uncompressed_file(huffman_io_t* self, huffman_codes_t* huf
             counter++;
         } else {
             found = false;
-            memset(code, NULL, counter + 1);
+            memset(code, 0, counter + 1);
             counter = 0;
         }
 

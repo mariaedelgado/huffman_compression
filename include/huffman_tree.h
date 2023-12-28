@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAX_TREE_HT 50  // try to enhance
-
 typedef struct {
     char character;
     int frequency;

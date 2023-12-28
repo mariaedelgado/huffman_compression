@@ -9,7 +9,7 @@
 // decimal index. Table of ASCII printable characters available in the source file.
 
 #define N_ASCII_PRINTABLE_CHAR  95
-#define N_MAX_SIGNIFICANT_BITS   8
+#define N_MAX_SIGNIFICANT_BITS  50
 
 struct huffman_codes {
 

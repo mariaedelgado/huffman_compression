@@ -33,6 +33,7 @@ end:
 int huffman_tree__store_character(huffman_tree_t* self, char character)
 {
     int ret = -1;
+    fprintf(stderr, "%c", character);
 
     if (self == NULL)
     {

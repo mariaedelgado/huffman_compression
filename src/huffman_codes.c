@@ -77,7 +77,7 @@ int huffman_codes__generate(huffman_codes_t* self, const huffman_tree_t huffman_
 {
     int ret = -1;
     int level = 1;  // Number of significant bits on each code
-    char codes[MAX_TREE_HT] = { 0 };
+    char codes[N_MAX_SIGNIFICANT_BITS] = { 0 };
 
     if (self == NULL)
         goto end;
@@ -97,8 +97,8 @@ static int huffman_codes__generate_code_from_header(huffman_codes_t* self, FILE*
     int pos = 0;
     char is_leaf = 0;
     char character = 0;
-    char lcodes[MAX_TREE_HT] = { 0 };
-    char rcodes[MAX_TREE_HT] = { 0 };
+    char lcodes[N_MAX_SIGNIFICANT_BITS] = { 0 };
+    char rcodes[N_MAX_SIGNIFICANT_BITS] = { 0 };
     strcpy(lcodes, codes);
     strcpy(rcodes, codes);
 
@@ -133,7 +133,7 @@ end:
 int huffman_codes__generate_from_header(huffman_codes_t* self, FILE* fh_in)
 {
     int level = 1;  // Number of significant bits on each code
-    char codes[MAX_TREE_HT] = { 0 };
+    char codes[N_MAX_SIGNIFICANT_BITS] = { 0 };
 
     return huffman_codes__generate_code_from_header(self, fh_in, codes, level);
 }
