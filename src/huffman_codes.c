@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../include/bits.h"
 #include "../include/huffman_codes.h"
 
 // This is the ASCII table of printable characters:
@@ -115,16 +116,17 @@ static int huffman_codes__generate_code_from_header(huffman_codes_t* self, FILE*
         goto end;
     }
 
-    is_leaf = fgetc(fh_in);
+    // Read one bit of the file
+    is_leaf = read_bits(fh_in, 1);
 
-    if (is_leaf == '1') {
-        character = fgetc(fh_in);
+    if (is_leaf == 1) {
+        character = read_bits(fh_in, 8);
         pos = character - 32;
         self->n_significant_bits[pos] = level;
         strcpy(self->code[pos], codes);
         printf("Character: %c [%.*s]\n", character, level, self->code[pos]);
     
-    } else if (is_leaf == '0') {
+    } else if (is_leaf == 0) {
         // Right side
         rcodes[level - 1] = '0';
         ret = huffman_codes__generate_code_from_header(self, fh_in, rcodes, level + 1);

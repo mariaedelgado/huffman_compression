@@ -1,16 +1,27 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "../include/bits.h"
 #include "../include/huffman_io.h"
 
 huffman_io_t* huffman_io__create(char* input_file, char* output_file, bool compress)
 {
     huffman_io_t* self = malloc(sizeof(huffman_io_t));
 
-    // Open both input and output files
-    self->fh_in = fopen(input_file, "r");
-    self->fh_out = fopen(output_file, "w+");
+    // Open both input and output files. If we want to compress, our input is written
+    // with regular ASCII, but our output file shall be in binary format. On the other
+    // hand, if we want to decompress, our input is in binary but we will want to write
+    // the output in ASCII format.
+
     self->compress = compress;
+    if (self->compress == true) {
+        self->fh_in = fopen(input_file, "r");
+        self->fh_out = fopen(output_file, "wb+");
+
+    } else {
+        self->fh_in = fopen(input_file, "rb");
+        self->fh_out = fopen(output_file, "w+");
+    }
 
     if ((self->fh_in == NULL) || (self->fh_in == NULL))
     {
@@ -76,7 +87,8 @@ int huffman_io__read_file_to_uncompress(huffman_io_t* self, huffman_codes_t* huf
 
 /* --------------------------------------------------------------------------------------------------- */
 
-static int huffman_io__encode_node(huffman_io_t* self, huffman_tree_t* huffman_tree, int current_index)
+static int huffman_io__encode_node(huffman_io_t* self, huffman_tree_t* huffman_tree, int current_index,
+                                   char* header, uint8_t* header_pos)
 {
     int ret = 0;
 
@@ -88,22 +100,58 @@ static int huffman_io__encode_node(huffman_io_t* self, huffman_tree_t* huffman_t
     node_t* current_node = &huffman_tree->node[current_index];
 
     if (is_leaf(current_node)) {
-        fprintf(self->fh_out, "1");
-        fprintf(self->fh_out, "%c", current_node->character);
+        header[*header_pos] = '1';
+        header[*header_pos + 1] = current_node->character;
+        *header_pos += 2;
 
     } else {
-        fprintf(self->fh_out, "0");
-        ret = huffman_io__encode_node(self, huffman_tree, current_node->lchild_index);
-        ret = huffman_io__encode_node(self, huffman_tree, current_node->rchild_index);
+        header[*header_pos] = '0';
+        *header_pos += 1;
+
+        ret = huffman_io__encode_node(self, huffman_tree, current_node->lchild_index, header, header_pos);
+        ret = huffman_io__encode_node(self, huffman_tree, current_node->rchild_index, header, header_pos);
     }
 
 end:
     return ret;
 }
 
-static int huffman_io__write_header(huffman_io_t* self, huffman_tree_t* huffman_tree)
+static int huffman_io__print_header(huffman_io_t* self, char* header, uint8_t header_pos,
+                                    uint8_t* buffer, uint8_t* n_bits_in_buffer)
+{
+    int ret = 0;
+
+    if ((self == NULL) || (header == NULL))
+        goto end;
+
+    if ((buffer == NULL) || (n_bits_in_buffer == NULL))
+        goto end;
+
+    for (int i = 0; i < header_pos; i++)
+    {
+        char bit = header[i];
+
+        if ((bit == '0') || (bit == '1')) {
+            write_bits(self->fh_out, bit, 1, buffer, n_bits_in_buffer);
+
+        } else {
+            write_bits(self->fh_out, bit, 8, buffer, n_bits_in_buffer);
+        }
+    }
+
+    // If remaining bits in buffer, they will be written in the next step (we are
+    // using the same buffer for header and body)
+
+end:
+    return ret;
+}
+
+static int huffman_io__write_header(huffman_io_t* self, huffman_tree_t* huffman_tree,
+                                    uint8_t* buffer, uint8_t* n_bits_in_buffer)
 {
     int ret = -1;
+    char header[256] = { 0 };
+    uint8_t header_pos = 0;
 
     if ((self->fh_out == NULL) || (huffman_tree == NULL)) {
         goto end;
@@ -111,7 +159,11 @@ static int huffman_io__write_header(huffman_io_t* self, huffman_tree_t* huffman_
 
     // Explain Huffman tree encoding method !!!!!!!!!!!!!!!!!
     // Starting at root node
-    ret = huffman_io__encode_node(self, huffman_tree, huffman_tree->number_of_nodes - 1);
+    ret = huffman_io__encode_node(self, huffman_tree, huffman_tree->number_of_nodes - 1, header, &header_pos);
+    if (ret != 0)
+        goto end;
+
+    ret = huffman_io__print_header(self, header, header_pos, buffer, n_bits_in_buffer);
 
 end:
     return ret;
@@ -120,13 +172,15 @@ end:
 int huffman_io__write_compressed_file(huffman_io_t* self, huffman_tree_t* huffman_tree, huffman_codes_t* huffman_codes)
 {
     int ret = -1;
+    uint8_t buffer = 0;
+    uint8_t n_bits_in_buffer = 0;
 
     if ((self->fh_in == NULL) || (self->fh_out == NULL)) {
         goto end;
     }
 
     // First, write the header (containing the Huffman tree)
-    ret = huffman_io__write_header(self, huffman_tree);
+    ret = huffman_io__write_header(self, huffman_tree, &buffer, &n_bits_in_buffer);
 
     // Rewind fh_in, since it has already been read
     rewind(self->fh_in);
@@ -136,12 +190,9 @@ int huffman_io__write_compressed_file(huffman_io_t* self, huffman_tree_t* huffma
     char c = ' ';
     int pos = 0;
 
-    // Write a space between the encoded header and the
-    // encoded bytes so that we can distinguish between the Huffman Tree and the file itself.
-    // fprintf(self->fh_out, " ");
-
     while (true)
     {
+        // Read next character from the input file
         c = fgetc(self->fh_in);
 
         if (feof(self->fh_in)) {
@@ -151,7 +202,16 @@ int huffman_io__write_compressed_file(huffman_io_t* self, huffman_tree_t* huffma
 
         // Since the character is at the same time the index in our huffman_code_t table (when substracted 32).
         pos = (int)c - 32;
-        fprintf(self->fh_out, "%.*s", huffman_codes->n_significant_bits[pos], huffman_codes->code[pos]);
+        
+        // Fill bits with the given code
+        for (int i = 0; i < huffman_codes->n_significant_bits[pos]; i++)
+        {
+            // We can cast one of the chars into a uint8_t because we know it is either a 0 or a 1
+            char bit = huffman_codes->code[pos][i];
+            write_bits(self->fh_out, bit, 1, &buffer, &n_bits_in_buffer);
+        }
+
+
     }
 
 end:
@@ -172,7 +232,8 @@ int huffman_io__write_uncompressed_file(huffman_io_t* self, huffman_codes_t* huf
 
     while (true) {
 
-        code[counter] = fgetc(self->fh_in);
+        // Read bit by bit. To convert from uint8_t to char, we add + '0'.
+        code[counter] = read_bits(self->fh_in, 1) + '0';
 
         if (feof(self->fh_in)) {
             ret = 0;
