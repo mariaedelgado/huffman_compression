@@ -74,6 +74,10 @@ int huffman_io__read_file_to_compress(huffman_io_t* self, huffman_tree_t* huffma
         }
     }
 
+    ret = huffman_tree__add_eof(huffman_tree);
+    if (ret != 0)
+        goto end;
+
     ret = huffman_tree__sort(huffman_tree);
 
 end:
@@ -211,7 +215,18 @@ int huffman_io__write_compressed_file(huffman_io_t* self, huffman_tree_t* huffma
             write_bits(self->fh_out, bit, 1, &buffer, &n_bits_in_buffer);
         }
 
+    }
 
+    // Write the EOF bits. If the buffer is not complete, write them out either way.
+    pos = 95; // EOF code position
+    for (int i = 0; i < huffman_codes->n_significant_bits[pos]; i++) {
+        char bit = huffman_codes->code[pos][i];
+        write_bits(self->fh_out, bit, 1, &buffer, &n_bits_in_buffer);
+    }
+
+    if (n_bits_in_buffer > 0) {
+        buffer = buffer << (8 - n_bits_in_buffer);
+        fwrite(&buffer, sizeof(uint8_t), 1, self->fh_out);
     }
 
 end:
@@ -221,7 +236,8 @@ end:
 int huffman_io__write_uncompressed_file(huffman_io_t* self, huffman_codes_t* huffman_codes)
 {
     int ret = 0;
-    char code[8] = { 0 };
+    uint8_t bit = 0;
+    char code[50] = { 0 };
     int counter = 0;
     bool found = false;
 
@@ -233,20 +249,22 @@ int huffman_io__write_uncompressed_file(huffman_io_t* self, huffman_codes_t* huf
     while (true) {
 
         // Read bit by bit. To convert from uint8_t to char, we add + '0'.
-        code[counter] = read_bits(self->fh_in, 1) + '0';
-
-        if (feof(self->fh_in)) {
-            ret = 0;
-            break;
-        }
+        bit = read_bits(self->fh_in, 1);
+        code[counter] = bit + '0';
 
         // Try to map current code to an entry of the table. If not possible, continue reading
-        for (int i = 0; i < N_ASCII_PRINTABLE_CHAR; i++)
+        for (int i = 0; i < N_ASCII_PRINTABLE_CHAR + 1; i++)
         {
             if (strcmp(huffman_codes->code[i], code) == 0) {
-                fprintf(self->fh_out, "%c", i + 32);
-                found = true;
-                break;
+
+                if (i == 95) {  // Code saved for EOF
+                    goto end;
+
+                } else {
+                    fprintf(self->fh_out, "%c", i + 32);
+                    found = true;
+                    break;
+                }
             }
         }
 

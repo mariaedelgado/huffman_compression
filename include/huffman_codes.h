@@ -7,15 +7,16 @@
 // We are going to use the ASCII table to quickly access the Huffman codes of the characters. This is, we are going
 // to create an array of 127 - 32 = 95 to represent each of the possible characters and access the table by their
 // decimal index. Table of ASCII printable characters available in the source file.
+// In order to take into account the EOF character, we will add an extra slot in the end.
 
 #define N_ASCII_PRINTABLE_CHAR  95
 #define N_MAX_SIGNIFICANT_BITS  50
 
 struct huffman_codes {
 
-    uint8_t n_significant_bits[N_ASCII_PRINTABLE_CHAR];         // Number of significant bits in the Huffman code
-    char code[N_ASCII_PRINTABLE_CHAR][N_MAX_SIGNIFICANT_BITS];  // Array with the size of the maximum number of printable characters,
-                                                                // where we are going to store the value of their Huffman code.
+    uint8_t n_significant_bits[N_ASCII_PRINTABLE_CHAR + 1];         // Number of significant bits in the Huffman code
+    char code[N_ASCII_PRINTABLE_CHAR + 1][N_MAX_SIGNIFICANT_BITS];  // Array with the size of the maximum number of printable characters,
+                                                                    // where we are going to store the value of their Huffman code.
 };
 
 typedef struct huffman_codes huffman_codes_t;

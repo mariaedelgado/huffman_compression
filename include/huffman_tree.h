@@ -36,6 +36,13 @@ typedef struct {
 */
 int huffman_tree__store_character(huffman_tree_t* self, char character);
 
+/** \brief Stores an EOF character with frequency 1. This code will be used to denote
+ * the end of the encoded bits.
+ * \param self as huffman_tree_t*. Pointer to the Huffman Tree.
+ * \return int. Error code (0 if OK).
+*/
+int huffman_tree__add_eof(huffman_tree_t* self);
+
 /** Sorts the Huffman Tree once all the file has been read and all the characters
  * have been added, in ascending order (by frequency).
  * \param self as huffman_tree_t*. Pointer to the Huffman Tree to be sorted.

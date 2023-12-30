@@ -58,6 +58,21 @@ end:
     return ret;
 }
 
+int huffman_tree__add_eof(huffman_tree_t* self)
+{
+    int ret = 0;
+
+    if (self == NULL) {
+        ret = -1;
+        goto end;
+    }
+
+    ret = huffman_tree__add_new_leaf(self, '\0');
+
+end:
+    return ret;
+}
+
 static int huffman_tree__swap_character_index(node_t* node_i, node_t* node_min)
 {
     int ret = -1;

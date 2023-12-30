@@ -56,7 +56,7 @@ static int huffman_codes__generate_code(huffman_codes_t* self, const huffman_tre
 
     if (is_leaf(lchild_node)) {
         codes[level - 1] = '0';
-        pos = lchild_node->character - 32;
+        pos = (lchild_node->character - 32) < 0 ? 95 : (lchild_node->character - 32);
         self->n_significant_bits[pos] = level;
         strcpy(self->code[pos], codes);
         printf("Character: %c [%.*s]\n", lchild_node->character, level, self->code[pos]);
@@ -67,7 +67,7 @@ static int huffman_codes__generate_code(huffman_codes_t* self, const huffman_tre
 
     if (is_leaf(rchild_node)) {
         codes[level - 1] = '1';
-        pos = rchild_node->character - 32;
+        pos = (rchild_node->character - 32) < 0 ? 95 : (rchild_node->character - 32);
         self->n_significant_bits[pos] = level;
         strcpy(self->code[pos], codes);
         printf("Character: %c [%.*s]\n", rchild_node->character, level, self->code[pos]);
@@ -104,8 +104,8 @@ static int huffman_codes__generate_code_from_header(huffman_codes_t* self, FILE*
 {
     int ret = 0;
     int pos = 0;
-    char is_leaf = 0;
-    char character = 0;
+    unsigned char is_leaf = 0;
+    unsigned char character = 0;
     char lcodes[N_MAX_SIGNIFICANT_BITS] = { 0 };
     char rcodes[N_MAX_SIGNIFICANT_BITS] = { 0 };
     strcpy(lcodes, codes);
@@ -121,7 +121,7 @@ static int huffman_codes__generate_code_from_header(huffman_codes_t* self, FILE*
 
     if (is_leaf == 1) {
         character = read_bits(fh_in, 8);
-        pos = character - 32;
+        pos = (character - 32) < 0 ? 95 : (character - 32);
         self->n_significant_bits[pos] = level;
         strcpy(self->code[pos], codes);
         printf("Character: %c [%.*s]\n", character, level, self->code[pos]);
