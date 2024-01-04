@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../include/huffman_io.h"
+#include "../include/huffman/huffman_io.h"
 
 #define MAX_SIZE_FILENAME   256
 

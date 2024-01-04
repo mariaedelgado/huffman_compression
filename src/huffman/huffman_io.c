@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "../include/bits.h"
-#include "../include/huffman_io.h"
+#include "../include/huffman/huffman_io.h"
 
 huffman_io_t* huffman_io__create(char* input_file, char* output_file, bool compress)
 {

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "../include/bits.h"
-#include "../include/huffman_codes.h"
+#include "../include/huffman/huffman_codes.h"
 
 // This is the ASCII table of printable characters:
 // Character	Hex	Decimal	  	Character	Hex	Decimal	  	Character	Hex	Decimal

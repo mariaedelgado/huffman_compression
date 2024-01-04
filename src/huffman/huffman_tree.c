@@ -1,4 +1,4 @@
-#include "../include/huffman_tree.h"
+#include "../include/huffman/huffman_tree.h"
 
 const int huffman_tree__add_new_leaf(huffman_tree_t* self, char character)
 {

@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "../include/huffman_tree.h"
-
+#include "huffman_tree.h"
 // We are going to use the ASCII table to quickly access the Huffman codes of the characters. This is, we are going
 // to create an array of 127 - 32 = 95 to represent each of the possible characters and access the table by their
 // decimal index. Table of ASCII printable characters available in the source file.
