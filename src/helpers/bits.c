@@ -1,4 +1,4 @@
-#include "../include/bits.h"
+#include "../include/helpers/bits.h"
 
 uint8_t read_bits(FILE* file, uint8_t n_bits)
 {
