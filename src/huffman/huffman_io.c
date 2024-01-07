@@ -23,7 +23,7 @@ huffman_io_t* huffman_io__create(char* input_file, char* output_file, bool compr
         self->fh_out = fopen(output_file, "w+");
     }
 
-    if ((self->fh_in == NULL) || (self->fh_in == NULL))
+    if ((self->fh_in == NULL) || (self->fh_out == NULL))
     {
         self = NULL;
     }
