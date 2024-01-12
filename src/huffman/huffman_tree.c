@@ -1,5 +1,16 @@
 #include "../include/huffman/huffman_tree.h"
 
+huffman_tree_t* huffman_tree__create()
+{
+    huffman_tree_t* self = NULL;
+
+    self = malloc(sizeof(huffman_tree_t));
+    self->number_of_nodes = 0;
+    self->node = NULL;
+
+    return self;
+}
+
 const int huffman_tree__add_new_leaf(huffman_tree_t* self, char character)
 {
     int ret = -1;
@@ -168,14 +179,6 @@ static int huffman_tree__insert_new_intermediate_node(huffman_tree_t* self, int 
 
     free(tmp);
 
-    for (int i = 0; i < self->number_of_nodes; i++)
-    {
-        if (is_leaf(&self->node[i]) == true) {
-            printf("[%u] character: %c Frequency: %u\n", i, self->node[i].character, self->node[i].frequency);
-        } else {
-            printf("[%u] ITN node Frequency: %u\n", i, self->node[i].frequency);
-        };
-    }
     return 0;
 }
 
@@ -216,6 +219,7 @@ int huffman_tree__destroy(huffman_tree_t* self)
 
     self->number_of_nodes = 0;
     free(self->node);
+    free(self);
     ret = 0;
 
 end:

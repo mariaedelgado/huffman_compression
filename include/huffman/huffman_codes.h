@@ -22,10 +22,10 @@ typedef struct huffman_codes huffman_codes_t;
 
 /** \brief Generate Huffman codes table from the tree of this Huffman process.
  * \param self as huffman_codes_t*. Pointer to the huffman_codes_t* table to be filled.
- * \param huffman_tree as const huffman_tree_t. Huffman Tree of the process.
+ * \param huffman_tree as huffman_tree_t*. Huffman Tree of the process.
  * \return int. Error code (0 if OK).
 */
-int huffman_codes__generate(huffman_codes_t* self, const huffman_tree_t huffman_tree);
+int huffman_codes__generate(huffman_codes_t* self, huffman_tree_t* huffman_tree);
 
 
 int huffman_codes__generate_from_header(huffman_codes_t* self, FILE* fh_in);

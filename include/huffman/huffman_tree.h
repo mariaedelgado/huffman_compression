@@ -27,6 +27,8 @@ typedef struct {
 
 } huffman_tree_t;
 
+huffman_tree_t* huffman_tree__create();
+
 /** \brief Stores character in the Huffman Tree (as a leaf node, since this method)
  * is to be called when reading an input file to encode.
  * \param self as huffman_tree_t*. Pointer to the Huffman Tree to be filled.
