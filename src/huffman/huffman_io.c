@@ -218,7 +218,7 @@ int huffman_io__write_compressed_file(huffman_io_t* self, huffman_tree_t* huffma
     }
 
     // Write the EOF bits. If the buffer is not complete, write them out either way.
-    pos = 95; // EOF code position
+    pos = 95;
     for (int i = 0; i < huffman_codes->n_significant_bits[pos]; i++) {
         char bit = huffman_codes->code[pos][i];
         write_bits(self->fh_out, bit, 1, &buffer, &n_bits_in_buffer);

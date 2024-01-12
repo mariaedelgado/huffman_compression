@@ -11,14 +11,12 @@
 #define N_ASCII_PRINTABLE_CHAR  95
 #define N_MAX_SIGNIFICANT_BITS  50
 
-struct huffman_codes {
+typedef struct {
 
     uint8_t n_significant_bits[N_ASCII_PRINTABLE_CHAR + 1];         // Number of significant bits in the Huffman code
     char code[N_ASCII_PRINTABLE_CHAR + 1][N_MAX_SIGNIFICANT_BITS];  // Array with the size of the maximum number of printable characters,
                                                                     // where we are going to store the value of their Huffman code.
-};
-
-typedef struct huffman_codes huffman_codes_t;
+} huffman_codes_t;
 
 /** \brief Generate Huffman codes table from the tree of this Huffman process.
  * \param self as huffman_codes_t*. Pointer to the huffman_codes_t* table to be filled.

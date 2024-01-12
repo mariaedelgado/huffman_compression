@@ -141,7 +141,6 @@ static int huffman_tree__insert_new_intermediate_node(huffman_tree_t* self, int 
     int itn_index = 0;
     int itn_frequency = 0;
     node_t* tmp = NULL;
-    printf("Current number of nodes in tree: %lu\n", self->number_of_nodes);
 
     // Find position in array
     itn_frequency = self->node[left_index].frequency + self->node[right_index].frequency;
@@ -150,7 +149,6 @@ static int huffman_tree__insert_new_intermediate_node(huffman_tree_t* self, int 
         if (itn_frequency < self->node[i].frequency)
         {
             itn_index = i;
-            printf("New node's position in array is %u\n", i);
             break;
         }
     }

@@ -122,7 +122,6 @@ static float compute_compression_ratio(huffman_io_t* huffman_io)
 static void gui__print_node(const huffman_tree_t* huffman_tree, int current_index, int level)
 {
     int n_spaces = 0;
-    char* spaces = NULL;
 
     const node_t* current_node = &huffman_tree->node[current_index];
     const node_t* lchild_node = &huffman_tree->node[current_node->lchild_index];
@@ -141,23 +140,28 @@ static void gui__print_node(const huffman_tree_t* huffman_tree, int current_inde
     }
 
     n_spaces = 11 + 14*(level - 1);
-    spaces = malloc(n_spaces*sizeof(char));
-    memset(spaces, ' ', n_spaces*sizeof(char));
 
     if (is_leaf(rchild_node)) {
-        printf("\n%*s|", n_spaces, spaces);
+        printf("\n");
+        for (int i = 0; i < n_spaces; i++) printf(" ");
+        printf("|");
         if (rchild_node->character == '\000') {
-            printf("\n%*s---- EOF (%d) ", n_spaces, spaces, rchild_node->frequency);
+            printf("\n");
+            for (int i = 0; i < n_spaces; i++) printf(" ");
+            printf("---- EOF (%d) ", rchild_node->frequency);
         } else {
-            printf("\n%*s----  %c  (%d) ", n_spaces, spaces, rchild_node->character, rchild_node->frequency);
+            printf("\n");
+            for (int i = 0; i < n_spaces; i++) printf(" ");
+            printf("----  %c  (%d) ", rchild_node->character, rchild_node->frequency);
         }
     } else {
-        printf("\n%*s|", n_spaces, spaces);
-        printf("\n%*s---- Itn (%d) ", n_spaces, spaces, rchild_node->frequency);
+        printf("\n");
+        for (int i = 0; i < n_spaces; i++) printf(" ");
+        printf("---- Itn (%d) ", rchild_node->frequency);
         gui__print_node(huffman_tree, current_node->rchild_index, level + 1);
     }
 
-    free(spaces);
+    return;
 }
 
 static int gui__print_huffman_tree(const huffman_tree_t* huffman_tree, const huffman_codes_t* huffman_codes)
