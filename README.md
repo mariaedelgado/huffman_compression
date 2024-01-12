@@ -1,33 +1,24 @@
-Project assignment for IP405E Programming and C Language (ENAC- ASNAT23)
+Welcome to Maria's Huffman Compression program !
 
-# Assignment 4: Data Compression
+## How to run the program
+The steps to make the program work are the following. More information about the code can be found in documentation/code_documentation.md.
 
-**Context:**
+1. Generate the executable(s). The method to compile used in class has been included in a Makefile so that including the source and include files is automatic. To do that, we will run **in the root folder**:
 
-A data stream consists of a stream of symbols from a finite alphabet. Huffman coding is a particular type of optimal prefix code that is commonly used for lossless data compression. It was developed by David A. Huffman in 1952 during its PhD. Huffman coding forms the basis of the “zip” file format. The main properties of Huffman encoding are:
+    `make`
 
-- It has a variable length. Frequent symbols are encoded with shorter code.
-- It is a prefix code. No code occurs as a prefix of another code.
-- It produces the shortest prefix code for a given symbol frequency.
-  
-Huffman coding uses a method for choosing the representation for each symbol, resulting in a prefix code. Huffman coding is such a widespread method for creating prefix codes that the term "Huffman code" is widely used as a synonym for "prefix code" even when such a code is not produced by Huffman's algorithm. The procedure to generate the code involves constructing a tree that proceeds as follows:
+2. Prepare the files to be used by dropping them in the folder **/data**. This has been done to easen the user's life - you don't need to specify the full path of your files !
 
-- Compute frequency of occurrence of each alphabet symbol.
-- Sort all the different symbols and their particular frequency or probability.
-- Take the two lowest probability symbols and create a new common node with the
-probability equal to the sum of the two probability. Always make sure to add the lowest
-summing up nodes.
-- Add the new node to the table instead of the lowest two symbols or nodes.
-- Repeat steps two and three until one symbol or node is remaining.
-- Then allocate ‘0’ to all the right branches and ‘1’ to all right branches.
-- Read the bits from the top of the tree to the bottom of each symbol and record their
-particular bit pattern
+3. Execute the program. You will see two executables have been generated, and you may want to use one or the other depending on your needs:
 
-**Objectives:**
+    - **huffman_compression**: this executable requires a one line command in the terminal, ideal if you only want to compress/decompress quickly. To run it:
 
-The objective of the assignment is to understand and implement the full process of Huffman coding.
-The project will be composed of the following tasks:
-- Compute and build the Huffman compression tree from the file to be compressed
-- Encode the file using that encoding tree
-- Decode the encoded file to retrieve the initial file
-- Compute the compression ratio
+        Compress: `./huffman_compression -c -i <input_file> -o <output_file>`
+
+        Decompress: `./huffman_compression -d -i <input_file> -o <output_file>`
+
+    - **huffman_compression_gui**: this executable runs an interactive terminal, in which the user will be asked to write the required inputs. Additionally, it is possible to print the Huffman Tree and Huffman Codes of the process. To run it:
+
+        `./huffman_compression_gui`
+
+---
