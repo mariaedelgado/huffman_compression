@@ -3,8 +3,8 @@
 
 /** \brief Reads the next specificied number of bits from the given input file.
  * \param file as FILE*. Pointer to the file handler to read.
- * \param n_bits as uint8_t. Number of bits to be read (note that the maximum is
- * 8 bits - 1 byte).
+ * \param n_bits as uint8_t. Number of bits to be read. Note that the maximum is
+ * 8 bits (1 byte).
  * \return uint8_t. Resulting bits from the operation.
 */
 uint8_t read_bits(FILE* file, uint8_t n_bits);
