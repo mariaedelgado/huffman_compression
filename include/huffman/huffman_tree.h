@@ -14,7 +14,6 @@ typedef struct {
 /** \brief Asserts if input node is a leaf.
  * \param node as const node_t*. Pointer to the node that we want to assert.
  * \return bool. 'true' if leaf node, 'false' if intermediate node.
- * 
 */
 bool is_leaf(const node_t* node);
 
@@ -27,6 +26,9 @@ typedef struct {
 
 } huffman_tree_t;
 
+/** \brief Creates a new instance of the Huffman Tree.
+ * \return huffman_tree_t*.
+*/
 huffman_tree_t* huffman_tree__create();
 
 /** \brief Stores character in the Huffman Tree (as a leaf node, since this method)

@@ -67,6 +67,8 @@ int huffman_io__read_file_to_compress(huffman_io_t* self, huffman_tree_t* huffma
             break;
         }
 
+        // Store character in the Huffman tree. If it is already stored, it will increase
+        // the value of its frequency. If it is not, it will create a new node.
         ret = huffman_tree__store_character(huffman_tree, (char)c);
         if (ret != 0)
         {
@@ -74,10 +76,13 @@ int huffman_io__read_file_to_compress(huffman_io_t* self, huffman_tree_t* huffma
         }
     }
 
+    // Add EOF character to the Huffman tree. This will be used to know when to stop reading
+    // the compressed file.
     ret = huffman_tree__add_eof(huffman_tree);
     if (ret != 0)
         goto end;
 
+    // Sort the Huffman tree by frequency. This will be used to build the Huffman tree.
     ret = huffman_tree__sort(huffman_tree);
 
 end:
@@ -103,6 +108,7 @@ static int huffman_io__encode_node(huffman_io_t* self, huffman_tree_t* huffman_t
 
     node_t* current_node = &huffman_tree->node[current_index];
 
+    // If current node is a leaf, write '1' and the character. If it is not a leaf, write '0'
     if (is_leaf(current_node)) {
         header[*header_pos] = '1';
         header[*header_pos + 1] = current_node->character;
@@ -112,6 +118,7 @@ static int huffman_io__encode_node(huffman_io_t* self, huffman_tree_t* huffman_t
         header[*header_pos] = '0';
         *header_pos += 1;
 
+        // Recursively encode left and right child nodes
         ret = huffman_io__encode_node(self, huffman_tree, current_node->lchild_index, header, header_pos);
         ret = huffman_io__encode_node(self, huffman_tree, current_node->rchild_index, header, header_pos);
     }
@@ -161,8 +168,11 @@ static int huffman_io__write_header(huffman_io_t* self, huffman_tree_t* huffman_
         goto end;
     }
 
-    // Explain Huffman tree encoding method !!!!!!!!!!!!!!!!!
-    // Starting at root node
+    // The used method to encode the Huffman Tree works as follows:
+    // - If the current node is a leaf, write '1' and the character.
+    // - If the current node is not a leaf, write '0' and recursively encode the left and right child nodes.
+    // This will be written in the header of the compressed file in binary format.
+
     ret = huffman_io__encode_node(self, huffman_tree, huffman_tree->number_of_nodes - 1, header, &header_pos);
     if (ret != 0)
         goto end;
@@ -186,7 +196,7 @@ int huffman_io__write_compressed_file(huffman_io_t* self, huffman_tree_t* huffma
     // First, write the header (containing the Huffman tree)
     ret = huffman_io__write_header(self, huffman_tree, &buffer, &n_bits_in_buffer);
 
-    // Rewind fh_in, since it has already been read
+    // Rewind fh_in, since it has already been read one time.
     rewind(self->fh_in);
 
     // Read the file character by character and print the respective Huffman code for the
