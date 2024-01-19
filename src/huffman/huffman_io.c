@@ -25,6 +25,7 @@ huffman_io_t* huffman_io__create(char* input_file, char* output_file, bool compr
 
     if ((self->fh_in == NULL) || (self->fh_out == NULL))
     {
+        free(self);
         self = NULL;
     }
 

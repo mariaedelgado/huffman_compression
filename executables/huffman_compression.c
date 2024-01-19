@@ -100,14 +100,20 @@ int main(int argc, char *argv[])
                                                   parse_args.output_file,
                                                   parse_args.compress);
 
+    if (huffman_io == NULL) {
+        printf("[Error] huffman_io_t object could not be created. Please check if you provided a correct filepath.\n");
+        ret = -1;
+        goto end;
+    }
+
     // We can proceed to compress/decompress the file
     if (huffman_io->compress == true) {
-        fprintf(stderr, "Start compression...\n     - Input file: %s\n     - Output file: %s\n",
+        printf("Start compression...\n     - Input file: %s\n     - Output file: %s\n",
                 parse_args.input_file, parse_args.output_file);
         ret = huffman__compress(huffman_io);
 
     } else {
-        fprintf(stderr, "Start decompression...\n     - Input file: %s\n     - Output file: %s\n",
+        printf("Start decompression...\n     - Input file: %s\n     - Output file: %s\n",
                 parse_args.input_file, parse_args.output_file);
         ret = huffman__decompress(huffman_io);
     }
