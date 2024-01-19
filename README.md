@@ -21,4 +21,34 @@ The steps to make the program work are the following. More information about the
 
         `./huffman_compression_gui`
 
----
+## Examples
+
+A few examples have been prepared in **data/** folder to test the algorithm. Feel free to try your own files !
+
+### Test 1
+
+A basic example of compression and decompression with a small file. This is a cool example to test because, since it's small, the Huffman Tree can be displayed in terminal with the GUI !
+
+- Input file for the compression program: `example.txt`
+- Input file for the decompression program: `example_compressed.bin` (or you can also use the result from the compression).
+
+Expected results:
+
+|               | Input file size | Output file size | Compression ratio |
+|---------------|------------|-------------|-------|
+| Compression   | 20 | 14 | 0.7 |
+| Decompression | 14 | 20 | - |
+
+### Test 2
+
+Now, we can try with a much bigger file !
+
+- Input file for the compression program: `lorem_ipsum.txt`
+- Input file for the decompression program: `lorem_ipsum_compressed.bin` (or you can also use the result from the compression).
+
+Expected results:
+
+|               | Input file size | Output file size | Compression ratio |
+|---------------|------------|-------------|-------|
+| Compression   | 67793 | 36106 | 0.532591879 |
+| Decompression | 36106 | 67793 | - |
