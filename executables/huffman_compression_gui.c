@@ -61,38 +61,64 @@ int main(int argc, char *argv[])
     char input_filepath[MAX_SIZE_FILENAME] = { 0 };
     char output_filepath[MAX_SIZE_FILENAME] = { 0 };
     
-    ret = gui__print_landing_page();
+    // A while loop is created to allow the user to navigate through the different
+    // pages of the GUI. The while-loop will be exited if valid input/output files
+    // are provided, or if the user decides to exit the program.
+    while (true) {
+
+        ret = gui__print_landing_page();
     
-    switch(ret) 
-    {
-        case -1: { gui__print_error(); goto end; }
-        case 0:  { goto end; }
-        case 1:
-        {
+        if (ret == 0) {
+            goto end;
+
+        } else if (ret == 1) {
             ret = gui__print_compression_page(input_filepath, output_filepath);
             huffman_io = huffman_io__create(input_filepath, output_filepath, true);
-            break;
-        }
-        case 2:
-        {
+            
+            // If huffman_io couldn't be created, it allows the user to correct the
+            // input/output filepaths provided.
+            if (huffman_io == NULL) {
+                ret = gui__print_error();
+                if (ret == 1) { continue; }
+                else { goto end; }
+            } else {
+                break;
+            }
+        
+        } else if (ret == 2) {
             ret = gui__print_decompression_page(input_filepath, output_filepath);
             huffman_io = huffman_io__create(input_filepath, output_filepath, false);
-            break;
+            
+            // If huffman_io couldn't be created, it allows the user to correct the
+            // input/output filepaths provided.
+            if (huffman_io == NULL) {
+                ret = gui__print_error();
+                if (ret == 1) { continue; }
+                else { goto end; }
+            } else {
+                break;
+            }
         }
     }
 
+    // Once we exit the loop, we can proceed to compress/decompress the file
 
     if (huffman_io->compress == true) {
+        // In this case, we create the Huffman Tree outside because we want to be able to
+        // display it in the GUI.
         huffman_tree = huffman_tree__create();
         ret = huffman__compress(huffman_io, huffman_tree, &huffman_codes);
-        gui__print_result_page(huffman_io, huffman_tree, &huffman_codes);
+        gui__print_result_page_compressed(huffman_io, huffman_tree, &huffman_codes);
 
     } else {
         ret = huffman__decompress(huffman_io);
+        gui__print_result_page_decompressed(huffman_io);
     }
 
     
 end:
+
+    // Clean-up
 
     if (huffman_io != NULL) {
         ret = huffman_io__destroy(huffman_io);

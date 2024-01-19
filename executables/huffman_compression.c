@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
     
     // Parse the input command to obtain the type of process (compression/decompression), the input
     // file to be compressed and the output file where we are going to store the compressed data.
+
     ret = parse_command_line_options(argc, argv, &parse_args);
     if (ret != 0)
         goto end;
@@ -99,13 +100,12 @@ int main(int argc, char *argv[])
                                                   parse_args.output_file,
                                                   parse_args.compress);
 
-    // Compression
+    // We can proceed to compress/decompress the file
     if (huffman_io->compress == true) {
         fprintf(stderr, "Start compression...\n     - Input file: %s\n     - Output file: %s\n",
                 parse_args.input_file, parse_args.output_file);
         ret = huffman__compress(huffman_io);
 
-    // Decompression
     } else {
         fprintf(stderr, "Start decompression...\n     - Input file: %s\n     - Output file: %s\n",
                 parse_args.input_file, parse_args.output_file);
@@ -113,6 +113,8 @@ int main(int argc, char *argv[])
     }
     
 end:
+
+    // Clean-up
 
     if (huffman_io != NULL) {
         ret = huffman_io__destroy(huffman_io);
