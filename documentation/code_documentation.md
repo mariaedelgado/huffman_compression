@@ -62,4 +62,7 @@ The functions used by the executables are found in here. These are:
 
 ## Other considerations
 
-Explain return codes !!
+Throughout the code, you will probably see that most of the functions return an **int** as an error code. It works as follows:
+
+- Returns 0 if OK
+- Else, error
