@@ -52,6 +52,17 @@ end:
     return ret;
 }
 
+static char* get_file_extension(char* filename)
+{
+    char* dot = strrchr(filename, '.');
+
+    if (!dot || dot == filename) {
+        return "";
+    } else {
+        return dot + 1;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     int ret = -1;
@@ -60,6 +71,7 @@ int main(int argc, char *argv[])
     huffman_codes_t huffman_codes = { 0 };
     char input_filepath[MAX_SIZE_FILENAME] = { 0 };
     char output_filepath[MAX_SIZE_FILENAME] = { 0 };
+    char* input_extension = NULL;
     
     // A while loop is created to allow the user to navigate through the different
     // pages of the GUI. The while-loop will be exited if valid input/output files
@@ -73,6 +85,14 @@ int main(int argc, char *argv[])
 
         } else if (ret == 1) {
             ret = gui__print_compression_page(input_filepath, output_filepath);
+            input_extension = get_file_extension(input_filepath);
+
+            if (strcmp(input_extension, "txt") != 0) {
+                ret = gui__print_error();
+                if (ret == 1) { continue; }
+                else { goto end; }
+            }
+            
             huffman_io = huffman_io__create(input_filepath, output_filepath, true);
             
             // If huffman_io couldn't be created, it allows the user to correct the
@@ -87,6 +107,13 @@ int main(int argc, char *argv[])
         
         } else if (ret == 2) {
             ret = gui__print_decompression_page(input_filepath, output_filepath);
+
+            if (strcmp(input_extension, "bin") != 0) {
+                ret = gui__print_error();
+                if (ret == 1) { continue; }
+                else { goto end; }
+            }
+        
             huffman_io = huffman_io__create(input_filepath, output_filepath, false);
             
             // If huffman_io couldn't be created, it allows the user to correct the

@@ -66,9 +66,10 @@ int gui__print_compression_page(char* input_filepath, char* output_filepath)
     gui__clear_screen();
 
     printf(" ____________________________________________\n");
-    printf("| Please leave your files in  data/ folder   |\n");
+    printf("|             Huffman Compression            |\n");
+    printf("|  Please leave your files in  data/ folder  |\n");
     printf("|============================================|\n");
-    printf("| Provide file to compress:                  |\n");
+    printf("| Provide file to compress (.txt):           |\n");
     printf("| ");
     scanf("%s", tmp_input_filepath);
     printf("|                                            |\n");
@@ -107,9 +108,10 @@ int gui__print_decompression_page(char* input_filepath, char* output_filepath)
     gui__clear_screen();
 
     printf(" ____________________________________________\n");
-    printf("| Please leave your files in  data/ folder   |\n");
+    printf("|            Huffman Decompression           |\n");
+    printf("|  Please leave your files in  data/ folder  |\n");
     printf("|============================================|\n");
-    printf("| Provide file to decompress:                |\n");
+    printf("| Provide file to decompress (.bin):         |\n");
     printf("| ");
     scanf("%s", tmp_input_filepath);
     printf("|                                            |\n");
@@ -230,6 +232,8 @@ static int gui__print_huffman_tree(const huffman_tree_t* huffman_tree, const huf
     printf(" r = Return\n");
     printf(" any other key = Exit\n");
 
+    scanf(" %c", &option);
+
     if (option == 'r') {
         ret = 1;
     } else {
@@ -334,7 +338,7 @@ void gui__print_result_page_decompressed(huffman_io_t* huffman_io)
     printf("|       Huffman De-Compression Program      |\n");
     printf("|                   Results                 |\n");
     printf("|===========================================|\n");
-    printf("| Compression ratio: %0.2f                   |\n", compute_compression_ratio(huffman_io));
+    printf("| Decompression of file was successful.     |\n");
     printf("|                                           |\n");
     printf("| Press any key to exit                     |\n");
     printf(" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
@@ -355,6 +359,9 @@ int gui__print_error()
     printf("| Input file problem. Please, make sure:     |\n");
     printf("|   - File is inside data folder             |\n");
     printf("|   - Filename is written correctly          |\n");
+    printf("|   - Extension is correct:                  |\n");
+    printf("|       - Compress: .txt                     |\n");
+    printf("|       - Deompress: .bin                    |\n");
     printf("|                                            |\n");
     printf("| r = Return                                 |\n");
     printf("| any other key = Exit.                      |\n");
