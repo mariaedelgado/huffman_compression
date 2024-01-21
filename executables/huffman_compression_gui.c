@@ -107,6 +107,7 @@ int main(int argc, char *argv[])
         
         } else if (ret == 2) {
             ret = gui__print_decompression_page(input_filepath, output_filepath);
+            input_extension = get_file_extension(input_filepath);
 
             if (strcmp(input_extension, "bin") != 0) {
                 ret = gui__print_error();
